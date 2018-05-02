@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "928664729396",
+    "firebase_url": "https://registermystudent.firebaseio.com",
+    "project_id": "registermystudent",
+    "storage_bucket": "registermystudent.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:928664729396:android:474fa4a80ed3ab58",
+        "android_client_info": {
+          "package_name": "com.jjanonis.donatas.registermystudent"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "928664729396-b4so2l056d39lat75ngq41lms63ik9un.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jjanonis.donatas.registermystudent",
+            "certificate_hash": "3ffac0a86b59e0dca7ab49b3ece098e81be7a20f"
+          }
+        },
+        {
+          "client_id": "928664729396-qnj1s1s6vl8bfub9v8dpf3tirvljoe9k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfgLIjKif1Kg42fJ7_25trhjlhwnaeTv8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "928664729396-qnj1s1s6vl8bfub9v8dpf3tirvljoe9k.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
