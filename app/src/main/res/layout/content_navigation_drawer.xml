@@ -8,8 +8,32 @@
     tools:context=".NavigationDrawerActivity"
     tools:showIn="@layout/app_bar_navigation_drawer">
 
-    <CalendarView
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content">
+
+        <CalendarView
+            android:id="@+id/main_calendar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp" />
+
+        <TextView
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Absence days"
+            android:textAlignment="center" />
+
+        <ScrollView
+            android:id="@+id/absence_days"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </ScrollView>
+
+    </LinearLayout>
+
 
 </android.support.constraint.ConstraintLayout>

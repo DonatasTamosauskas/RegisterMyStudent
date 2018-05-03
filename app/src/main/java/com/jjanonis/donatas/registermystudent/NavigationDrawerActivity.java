@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -14,29 +15,37 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.CalendarView;
+import android.widget.ScrollView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+
 public class NavigationDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private LocalDate selectedDate;
+    ScrollView absenceDayList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation_drawer);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        initiateCalendar();
+        initiateFab();
+
+        absenceDayList = (ScrollView) findViewById(R.id.absence_days);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -46,6 +55,32 @@ public class NavigationDrawerActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    private void initiateCalendar() {
+        final CalendarView calendar = (CalendarView) findViewById(R.id.main_calendar);
+        calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+            @Override
+            public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
+                LocalDate currentSelectedDate = LocalDate.of(year, month, dayOfMonth);
+
+                Toast.makeText(NavigationDrawerActivity.this, currentSelectedDate.toString(), Toast.LENGTH_SHORT).show();
+                setSelectedDate(currentSelectedDate);
+                loadDayAbsenceList(currentSelectedDate);
+            }
+        });
+    }
+
+    private void initiateFab() {
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Added absence day.", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+
+            }
+        });
     }
 
     @Override
@@ -105,7 +140,7 @@ public class NavigationDrawerActivity extends AppCompatActivity
         return true;
     }
 
-    public void signOut() {
+    private void signOut() {
         AuthUI.getInstance()
                 .signOut(this)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -115,5 +150,22 @@ public class NavigationDrawerActivity extends AppCompatActivity
                         finish();
                     }
                 });
+    }
+
+    //TODO Fix crashing after second date selection
+    private void loadDayAbsenceList(LocalDate selectedDate) {
+        View absenceDayView = LayoutInflater.from(getApplicationContext()).inflate(R.layout.absence_day_element, null);
+        TextView dateText = absenceDayView.findViewById(R.id.date_text);
+
+        dateText.setText(selectedDate.toString());
+        absenceDayList.addView(absenceDayView);
+    }
+
+    public LocalDate getSelectedDate() {
+        return selectedDate;
+    }
+
+    public void setSelectedDate(LocalDate selectedDate) {
+        this.selectedDate = selectedDate;
     }
 }
