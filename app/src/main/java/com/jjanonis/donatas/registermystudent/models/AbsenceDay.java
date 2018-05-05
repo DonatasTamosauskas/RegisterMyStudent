@@ -1,25 +1,27 @@
 package com.jjanonis.donatas.registermystudent.models;
 
-import java.time.LocalDate;
-
 public class AbsenceDay {
-    private LocalDate date;
+    private String date;
     private String field;
 
-    public AbsenceDay(LocalDate date, String field) {
+    public AbsenceDay(String date, String field) {
         this.date = date;
         this.field = field;
     }
 
-    public AbsenceDay(LocalDate date) {
+    public AbsenceDay(String date) {
         this(date, "No field selected.");
     }
 
-    public LocalDate getDate() {
+    public AbsenceDay() {
+
+    }
+
+    public String getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(String date) {
         this.date = date;
     }
 

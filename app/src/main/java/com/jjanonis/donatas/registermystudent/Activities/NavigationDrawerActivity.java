@@ -1,13 +1,11 @@
-package com.jjanonis.donatas.registermystudent;
+package com.jjanonis.donatas.registermystudent.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -15,21 +13,25 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.CalendarView;
 import android.widget.ListView;
-import android.widget.ScrollView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.jjanonis.donatas.registermystudent.Adapters.AbsenceDaysAdapter;
+import com.jjanonis.donatas.registermystudent.R;
 import com.jjanonis.donatas.registermystudent.models.AbsenceDay;
 
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 
 public class NavigationDrawerActivity extends AppCompatActivity
@@ -37,6 +39,9 @@ public class NavigationDrawerActivity extends AppCompatActivity
 
     private LocalDate selectedDate;
     private AbsenceDaysAdapter absenceDaysAdapter;
+    private FirebaseUser currentUser;
+    private FirebaseDatabase database;
+    private DatabaseReference personalReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +51,7 @@ public class NavigationDrawerActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
+        createDatabaseConnection();
         initiateCalendar();
         initiateListOfAbsenceDays();
         initiateFab();
@@ -61,14 +66,22 @@ public class NavigationDrawerActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
     }
 
+    private void createDatabaseConnection() {
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        database = FirebaseDatabase.getInstance();
+        personalReference = database.getReference(currentUser.getUid());
+    }
+
     private void initiateCalendar() {
         final CalendarView calendar = (CalendarView) findViewById(R.id.main_calendar);
+        if(selectedDate == null) selectedDate = LocalDate.now();
+
         calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-                LocalDate currentSelectedDate = LocalDate.of(year, month, dayOfMonth);
+                LocalDate currentSelectedDate = LocalDate.of(year, month + 1, dayOfMonth);
 
-                Toast.makeText(NavigationDrawerActivity.this, currentSelectedDate.toString(), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(NavigationDrawerActivity.this, currentSelectedDate.toString(), Toast.LENGTH_SHORT).show();
                 setSelectedDate(currentSelectedDate);
                 loadDayAbsenceList(currentSelectedDate);
             }
@@ -83,6 +96,8 @@ public class NavigationDrawerActivity extends AppCompatActivity
                 Snackbar.make(view, "Added absence day.", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
 
+                AbsenceDay selectedDay = new AbsenceDay(selectedDate.toString(), "I'm from database!");
+                personalReference.child(selectedDate.toString()).push().setValue(selectedDay);
             }
         });
     }
@@ -114,12 +129,8 @@ public class NavigationDrawerActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_logout) {
             signOut();
         }
@@ -165,8 +176,30 @@ public class NavigationDrawerActivity extends AppCompatActivity
     }
 
     private void loadDayAbsenceList(LocalDate selectedDate) {
+        DatabaseReference dateReference = personalReference.child(selectedDate.toString());
+        absenceDaysAdapter.clear();
+        if (dateReference == null) return;
 
-        absenceDaysAdapter.add(new AbsenceDay(selectedDate));
+        dateReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                absenceDaysAdapter.clear();
+
+                for (DataSnapshot instanceOfAbsenceDay: dataSnapshot.getChildren()) {
+                    AbsenceDay selectedAbsence = instanceOfAbsenceDay.getValue(AbsenceDay.class);
+                    if (selectedAbsence != null) {
+                        absenceDaysAdapter.add(selectedAbsence);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+//        absenceDaysAdapter.add(new AbsenceDay(selectedDate));
     }
 
     public LocalDate getSelectedDate() {

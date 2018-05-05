@@ -27,7 +27,7 @@ public class AbsenceDaysAdapter extends ArrayAdapter<AbsenceDay> {
         }
 
         TextView absenceDate = (TextView) convertView.findViewById(R.id.date_text);
-        absenceDate.setText(String.valueOf(absenceDay.getDate().toString()));
+        absenceDate.setText(String.valueOf(absenceDay.getField()));
 
         return convertView;
     }
