@@ -99,10 +99,6 @@ public class NavigationDrawerActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Added absence day.", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-
-
                 DialogFragment dialogFragment = new AbsenceReasonDialogFragment();
                 dialogFragment.show(getFragmentManager(), "dialog");
             }
@@ -117,41 +113,23 @@ public class NavigationDrawerActivity extends AppCompatActivity
         absenceDayList.setAdapter(absenceDaysAdapter);
     }
 
-//    private void showDialog() {
-//        final Dialog dialog = new Dialog(NavigationDrawerActivity.this);
-//        dialog.setContentView(R.layout.absence_reason_dialog);
-//        dialog.setTitle("Add unattended lecture");
-//
-//        Button button = (Button) dialog.findViewById(R.id.button_ok);
-//        button.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v) {
-//
-//                EditText lectureEditText = (EditText) dialog.findViewById(R.id.lecture_text);
-//                String lectureText = lectureEditText.getText().toString();
-//
-//                dialog.dismiss();
-//                AbsenceDay newDay = new AbsenceDay(selectedDate.toString(), lectureText);
-//                saveAbsenceDayToDatabase(newDay);
-//            }
-//        });
-//
-//
-//        dialog.show();
-//    }
-
     private void saveAbsenceDayToDatabase(AbsenceDay dayToSave) {
         personalReference.child(selectedDate.toString()).push().setValue(dayToSave);
     }
 
     @Override
     public void onDialogAddClick(DialogFragment dialog, String lecture, String reason) {
-        AbsenceDay newDay = new AbsenceDay(selectedDate.toString(), lecture);
+        AbsenceDay newDay = new AbsenceDay(selectedDate.toString(), lecture, reason);
         saveAbsenceDayToDatabase(newDay);
+
+        Snackbar.make(findViewById(R.id.fab), "Added absence day", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show();
     }
 
     @Override
     public void onDialogCancelClick(DialogFragment dialog) {
-
+        Snackbar.make(findViewById(R.id.fab), "Action cancelled", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show();
     }
 
     @Override

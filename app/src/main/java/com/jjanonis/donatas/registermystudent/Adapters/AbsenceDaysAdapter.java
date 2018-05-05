@@ -26,8 +26,11 @@ public class AbsenceDaysAdapter extends ArrayAdapter<AbsenceDay> {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.absence_day_element, parent, false);
         }
 
-        TextView absenceDate = (TextView) convertView.findViewById(R.id.date_text);
-        absenceDate.setText(String.valueOf(absenceDay.getField()));
+        TextView lectureText = (TextView) convertView.findViewById(R.id.lecture_list_text);
+        TextView reasonText = (TextView) convertView.findViewById(R.id.reason_list_text);
+
+        lectureText.setText(absenceDay.getLecture());
+        reasonText.setText(absenceDay.getReason());
 
         return convertView;
     }

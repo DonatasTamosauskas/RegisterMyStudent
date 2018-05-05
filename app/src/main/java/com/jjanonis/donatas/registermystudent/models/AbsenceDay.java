@@ -1,20 +1,28 @@
 package com.jjanonis.donatas.registermystudent.models;
 
+import java.time.LocalDate;
+
 public class AbsenceDay {
     private String date;
-    private String field;
+    private String lecture;
+    private String reason;
 
-    public AbsenceDay(String date, String field) {
+    public AbsenceDay(String date, String lecture, String reason) {
         this.date = date;
-        this.field = field;
+        this.lecture = lecture;
+        this.reason = reason;
+    }
+
+    public AbsenceDay(String date, String lecture) {
+        this(date, lecture, " ");
     }
 
     public AbsenceDay(String date) {
-        this(date, "No field selected.");
+        this(date, "No lecture selected.", " ");
     }
 
     public AbsenceDay() {
-
+        this(LocalDate.now().toString());
     }
 
     public String getDate() {
@@ -25,11 +33,19 @@ public class AbsenceDay {
         this.date = date;
     }
 
-    public String getField() {
-        return field;
+    public String getLecture() {
+        return lecture;
     }
 
-    public void setField(String field) {
-        this.field = field;
+    public void setLecture(String lecture) {
+        this.lecture = lecture;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 }
