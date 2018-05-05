@@ -1,6 +1,5 @@
 package com.jjanonis.donatas.registermystudent.Activities;
 
-import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,10 +15,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CalendarView;
-import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -35,6 +33,7 @@ import com.jjanonis.donatas.registermystudent.Adapters.AbsenceDaysAdapter;
 import com.jjanonis.donatas.registermystudent.Fragments.AbsenceReasonDialogFragment;
 import com.jjanonis.donatas.registermystudent.R;
 import com.jjanonis.donatas.registermystudent.models.AbsenceDay;
+import com.jjanonis.donatas.registermystudent.models.ChatRoomType;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -54,22 +53,12 @@ public class NavigationDrawerActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation_drawer);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
         createDatabaseConnection();
         initiateCalendar();
         initiateListOfAbsenceDays();
         initiateFab();
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        initiateNavigationView();
     }
 
     private void createDatabaseConnection() {
@@ -103,6 +92,26 @@ public class NavigationDrawerActivity extends AppCompatActivity
                 dialogFragment.show(getFragmentManager(), "dialog");
             }
         });
+    }
+
+    private void initiateNavigationView() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+        View headerView = navigationView.getHeaderView(0);
+
+        TextView username = (TextView) headerView.findViewById(R.id.user_name_nav);
+        TextView email = (TextView) headerView.findViewById(R.id.user_email_nav);
+        username.setText(currentUser.getDisplayName());
+        email.setText(currentUser.getEmail());
     }
 
     private void initiateListOfAbsenceDays() {
@@ -166,23 +175,27 @@ public class NavigationDrawerActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+        if (id == R.id.general_chat) {
+            switchToChatActivity(ChatRoomType.GENERAL);
+        } else if (id == R.id.lecture_chat) {
+            switchToChatActivity(ChatRoomType.LECTURE);
+        } else if (id == R.id.exam_chat) {
+            switchToChatActivity(ChatRoomType.EXAM);
+        } else if (id == R.id.vacation_chat) {
+            switchToChatActivity(ChatRoomType.VACATION);
+        } else if (id == R.id.switch_calendar_activity) {
 
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void switchToChatActivity(ChatRoomType chatType) {
+        Intent chatIntent = new Intent(NavigationDrawerActivity.this, ChatActivity.class);
+        chatIntent.putExtra("chatRoom", chatType);
+        startActivity(chatIntent);
     }
 
     private void signOut() {
