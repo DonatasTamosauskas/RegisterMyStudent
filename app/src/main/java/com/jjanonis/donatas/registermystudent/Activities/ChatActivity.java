@@ -31,6 +31,10 @@ public class ChatActivity extends AppCompatActivity
 
         ChatRoomType chatType = (ChatRoomType) getIntent().getSerializableExtra("chatRoom");
 
+        initiateDrawer();
+    }
+
+    private void initiateDrawer() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.chat_toolbar);
         setSupportActionBar(toolbar);
 
