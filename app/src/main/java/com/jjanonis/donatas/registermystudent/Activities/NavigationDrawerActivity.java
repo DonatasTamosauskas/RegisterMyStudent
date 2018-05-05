@@ -1,5 +1,7 @@
 package com.jjanonis.donatas.registermystudent.Activities;
 
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -14,7 +16,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CalendarView;
+import android.widget.EditText;
 import android.widget.ListView;
 
 import com.firebase.ui.auth.AuthUI;
@@ -28,6 +32,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.jjanonis.donatas.registermystudent.Adapters.AbsenceDaysAdapter;
+import com.jjanonis.donatas.registermystudent.Fragments.AbsenceReasonDialogFragment;
 import com.jjanonis.donatas.registermystudent.R;
 import com.jjanonis.donatas.registermystudent.models.AbsenceDay;
 
@@ -35,7 +40,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class NavigationDrawerActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        AbsenceReasonDialogFragment.AbsenceDialogListener {
 
     private LocalDate selectedDate;
     private AbsenceDaysAdapter absenceDaysAdapter;
@@ -74,7 +80,7 @@ public class NavigationDrawerActivity extends AppCompatActivity
 
     private void initiateCalendar() {
         final CalendarView calendar = (CalendarView) findViewById(R.id.main_calendar);
-        if(selectedDate == null) selectedDate = LocalDate.now();
+        if (selectedDate == null) selectedDate = LocalDate.now();
 
         calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
@@ -96,8 +102,9 @@ public class NavigationDrawerActivity extends AppCompatActivity
                 Snackbar.make(view, "Added absence day.", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
 
-                AbsenceDay selectedDay = new AbsenceDay(selectedDate.toString(), "I'm from database!");
-                personalReference.child(selectedDate.toString()).push().setValue(selectedDay);
+
+                DialogFragment dialogFragment = new AbsenceReasonDialogFragment();
+                dialogFragment.show(getFragmentManager(), "dialog");
             }
         });
     }
@@ -108,6 +115,43 @@ public class NavigationDrawerActivity extends AppCompatActivity
 
         ListView absenceDayList = (ListView) findViewById(R.id.absence_days);
         absenceDayList.setAdapter(absenceDaysAdapter);
+    }
+
+//    private void showDialog() {
+//        final Dialog dialog = new Dialog(NavigationDrawerActivity.this);
+//        dialog.setContentView(R.layout.absence_reason_dialog);
+//        dialog.setTitle("Add unattended lecture");
+//
+//        Button button = (Button) dialog.findViewById(R.id.button_ok);
+//        button.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//
+//                EditText lectureEditText = (EditText) dialog.findViewById(R.id.lecture_text);
+//                String lectureText = lectureEditText.getText().toString();
+//
+//                dialog.dismiss();
+//                AbsenceDay newDay = new AbsenceDay(selectedDate.toString(), lectureText);
+//                saveAbsenceDayToDatabase(newDay);
+//            }
+//        });
+//
+//
+//        dialog.show();
+//    }
+
+    private void saveAbsenceDayToDatabase(AbsenceDay dayToSave) {
+        personalReference.child(selectedDate.toString()).push().setValue(dayToSave);
+    }
+
+    @Override
+    public void onDialogAddClick(DialogFragment dialog, String lecture, String reason) {
+        AbsenceDay newDay = new AbsenceDay(selectedDate.toString(), lecture);
+        saveAbsenceDayToDatabase(newDay);
+    }
+
+    @Override
+    public void onDialogCancelClick(DialogFragment dialog) {
+
     }
 
     @Override
@@ -185,7 +229,7 @@ public class NavigationDrawerActivity extends AppCompatActivity
             public void onDataChange(DataSnapshot dataSnapshot) {
                 absenceDaysAdapter.clear();
 
-                for (DataSnapshot instanceOfAbsenceDay: dataSnapshot.getChildren()) {
+                for (DataSnapshot instanceOfAbsenceDay : dataSnapshot.getChildren()) {
                     AbsenceDay selectedAbsence = instanceOfAbsenceDay.getValue(AbsenceDay.class);
                     if (selectedAbsence != null) {
                         absenceDaysAdapter.add(selectedAbsence);
