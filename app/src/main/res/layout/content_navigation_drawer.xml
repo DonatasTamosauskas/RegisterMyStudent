@@ -26,12 +26,12 @@
             android:text="Absence days"
             android:textAlignment="center" />
 
-        <ScrollView
+        <ListView
             android:id="@+id/absence_days"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-        </ScrollView>
+        </ListView>
 
     </LinearLayout>
 

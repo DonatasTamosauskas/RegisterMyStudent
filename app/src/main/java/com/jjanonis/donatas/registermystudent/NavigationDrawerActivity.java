@@ -16,6 +16,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.CalendarView;
+import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,16 +24,19 @@ import android.widget.Toast;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.jjanonis.donatas.registermystudent.Adapters.AbsenceDaysAdapter;
+import com.jjanonis.donatas.registermystudent.models.AbsenceDay;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 
 public class NavigationDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private LocalDate selectedDate;
-    ScrollView absenceDayList;
+    private AbsenceDaysAdapter absenceDaysAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,10 +46,10 @@ public class NavigationDrawerActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        initiateCalendar();
-        initiateFab();
 
-        absenceDayList = (ScrollView) findViewById(R.id.absence_days);
+        initiateCalendar();
+        initiateListOfAbsenceDays();
+        initiateFab();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -81,6 +85,14 @@ public class NavigationDrawerActivity extends AppCompatActivity
 
             }
         });
+    }
+
+    private void initiateListOfAbsenceDays() {
+        ArrayList<AbsenceDay> absenceDays = new ArrayList<>();
+        absenceDaysAdapter = new AbsenceDaysAdapter(this, absenceDays);
+
+        ListView absenceDayList = (ListView) findViewById(R.id.absence_days);
+        absenceDayList.setAdapter(absenceDaysAdapter);
     }
 
     @Override
@@ -152,13 +164,9 @@ public class NavigationDrawerActivity extends AppCompatActivity
                 });
     }
 
-    //TODO Fix crashing after second date selection
     private void loadDayAbsenceList(LocalDate selectedDate) {
-        View absenceDayView = LayoutInflater.from(getApplicationContext()).inflate(R.layout.absence_day_element, null);
-        TextView dateText = absenceDayView.findViewById(R.id.date_text);
 
-        dateText.setText(selectedDate.toString());
-        absenceDayList.addView(absenceDayView);
+        absenceDaysAdapter.add(new AbsenceDay(selectedDate));
     }
 
     public LocalDate getSelectedDate() {
