@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".Activities.ChatActivity"
+    tools:context=".activities.ChatActivity"
     tools:showIn="@layout/app_bar_chat_drawer">
 
     <RelativeLayout
@@ -84,7 +84,8 @@
                 android:layout_marginRight="8dp"
                 android:background="?android:selectableItemBackground"
                 android:enabled="false"
-                android:src="@drawable/ic_menu_send" />
+                android:src="@drawable/ic_menu_send"
+                android:onClick="sendMessage"/>
 
         </LinearLayout>
     </RelativeLayout>

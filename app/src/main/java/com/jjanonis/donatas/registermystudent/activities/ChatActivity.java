@@ -1,11 +1,8 @@
-package com.jjanonis.donatas.registermystudent.Activities;
+package com.jjanonis.donatas.registermystudent.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -14,24 +11,102 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.database.FirebaseListAdapter;
+import com.firebase.ui.database.FirebaseListOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.jjanonis.donatas.registermystudent.R;
+import com.jjanonis.donatas.registermystudent.models.ChatMessage;
 import com.jjanonis.donatas.registermystudent.models.ChatRoomType;
 
 public class ChatActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private ChatRoomType chatType;
+    private DatabaseReference chatRoomDatabase;
+    private FirebaseUser currentUser;
+    private FirebaseListAdapter<ChatMessage> messageAdapter;
+    private FirebaseListOptions<ChatMessage> options;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        messageAdapter.startListening();
+    }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        messageAdapter.stopListening();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        ChatRoomType chatType = (ChatRoomType) getIntent().getSerializableExtra("chatRoom");
+        chatType = (ChatRoomType) getIntent().getSerializableExtra("chatRoom");
+
+        createDatabaseConnection();
+
+        Query query = chatRoomDatabase;
+        options = new FirebaseListOptions.Builder<ChatMessage>()
+                .setQuery(query, ChatMessage.class)
+                .setLayout(R.layout.message_bubble)
+                .build();
 
         initiateDrawer();
+        createChatListAdapter();
+    }
+
+    private void createChatListAdapter() {
+        ListView messageList = (ListView) findViewById(R.id.messageListView);
+
+        Toast.makeText(ChatActivity.this, "I tried...", Toast.LENGTH_SHORT).show();
+
+        messageAdapter = new FirebaseListAdapter<ChatMessage>(options) {
+            @Override
+            protected void populateView(View view, ChatMessage model, int position) {
+                TextView messageText = (TextView) view.findViewById(R.id.nameTextView);
+                TextView userName = (TextView) view.findViewById(R.id.messageTextView);
+
+                userName.setText(model.getUser());
+                messageText.setText(model.getText());
+            }
+        };
+
+        messageList.setAdapter(messageAdapter);
+    }
+
+    private void createDatabaseConnection() {
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+
+        if (chatType == ChatRoomType.GENERAL) {
+            chatRoomDatabase = database.getReference("general");
+
+        } else if (chatType == ChatRoomType.LECTURE) {
+            chatRoomDatabase = database.getReference("lecture");
+
+        } else if (chatType == ChatRoomType.EXAM) {
+            chatRoomDatabase = database.getReference("exam");
+
+        } else if (chatType == ChatRoomType.VACATION) {
+            chatRoomDatabase = database.getReference("vacation");
+        }
     }
 
     private void initiateDrawer() {
@@ -80,6 +155,8 @@ public class ChatActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+
+    //TODO fix redirecting and database connection refreshing
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -87,7 +164,7 @@ public class ChatActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.general_chat) {
-            // Handle the camera action
+
         } else if (id == R.id.lecture_chat) {
 
         } else if (id == R.id.exam_chat) {
@@ -101,6 +178,15 @@ public class ChatActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.chat_drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void sendMessage(View view) {
+        EditText messageText = (EditText) findViewById(R.id.messageEditText);
+        ChatMessage newMessage = new ChatMessage(currentUser.getDisplayName(), messageText.getText().toString());
+
+        messageText.setText("");
+
+        chatRoomDatabase.push().setValue(newMessage);
     }
 
     private void signOut() {

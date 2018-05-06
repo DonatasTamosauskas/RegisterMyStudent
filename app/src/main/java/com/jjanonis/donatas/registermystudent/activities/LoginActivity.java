@@ -1,4 +1,4 @@
-package com.jjanonis.donatas.registermystudent.Activities;
+package com.jjanonis.donatas.registermystudent.activities;
 
 import android.content.Intent;
 import android.os.Bundle;

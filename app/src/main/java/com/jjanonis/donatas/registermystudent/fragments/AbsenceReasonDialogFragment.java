@@ -1,4 +1,4 @@
-package com.jjanonis.donatas.registermystudent.Fragments;
+package com.jjanonis.donatas.registermystudent.fragments;
 
 import android.app.Activity;
 import android.app.Dialog;

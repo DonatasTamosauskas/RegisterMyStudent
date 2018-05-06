@@ -1,4 +1,4 @@
-package com.jjanonis.donatas.registermystudent.Activities;
+package com.jjanonis.donatas.registermystudent.activities;
 
 import android.app.DialogFragment;
 import android.content.Intent;
@@ -29,8 +29,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.jjanonis.donatas.registermystudent.Adapters.AbsenceDaysAdapter;
-import com.jjanonis.donatas.registermystudent.Fragments.AbsenceReasonDialogFragment;
+import com.jjanonis.donatas.registermystudent.adapters.AbsenceDaysAdapter;
+import com.jjanonis.donatas.registermystudent.fragments.AbsenceReasonDialogFragment;
 import com.jjanonis.donatas.registermystudent.R;
 import com.jjanonis.donatas.registermystudent.models.AbsenceDay;
 import com.jjanonis.donatas.registermystudent.models.ChatRoomType;

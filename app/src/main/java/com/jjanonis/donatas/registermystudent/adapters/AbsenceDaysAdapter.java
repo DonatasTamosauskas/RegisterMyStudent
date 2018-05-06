@@ -1,4 +1,4 @@
-package com.jjanonis.donatas.registermystudent.Adapters;
+package com.jjanonis.donatas.registermystudent.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
