@@ -41,6 +41,18 @@ public class ChatActivity extends AppCompatActivity
     private FirebaseListOptions<ChatMessage> options;
 
     @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_chat);
+
+        chatType = (ChatRoomType) getIntent().getSerializableExtra("chatRoom");
+
+        createDatabaseConnection();
+        initiateDrawer();
+        createChatListAdapter();
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
         messageAdapter.startListening();
@@ -53,29 +65,14 @@ public class ChatActivity extends AppCompatActivity
         messageAdapter.stopListening();
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat);
-
-        chatType = (ChatRoomType) getIntent().getSerializableExtra("chatRoom");
-
-        createDatabaseConnection();
+    private void createChatListAdapter() {
+        ListView messageList = (ListView) findViewById(R.id.messageListView);
 
         Query query = chatRoomDatabase;
         options = new FirebaseListOptions.Builder<ChatMessage>()
                 .setQuery(query, ChatMessage.class)
                 .setLayout(R.layout.message_bubble)
                 .build();
-
-        initiateDrawer();
-        createChatListAdapter();
-    }
-
-    private void createChatListAdapter() {
-        ListView messageList = (ListView) findViewById(R.id.messageListView);
-
-        Toast.makeText(ChatActivity.this, "I tried...", Toast.LENGTH_SHORT).show();
 
         messageAdapter = new FirebaseListAdapter<ChatMessage>(options) {
             @Override
@@ -96,22 +93,24 @@ public class ChatActivity extends AppCompatActivity
         FirebaseDatabase database = FirebaseDatabase.getInstance();
 
         if (chatType == ChatRoomType.GENERAL) {
-            chatRoomDatabase = database.getReference("general");
+            chatRoomDatabase = database.getReference("chatRooms").child("general");
 
         } else if (chatType == ChatRoomType.LECTURE) {
-            chatRoomDatabase = database.getReference("lecture");
+            chatRoomDatabase = database.getReference("chatRooms").child("lecture");
 
         } else if (chatType == ChatRoomType.EXAM) {
-            chatRoomDatabase = database.getReference("exam");
+            chatRoomDatabase = database.getReference("chatRooms").child("exam");
 
         } else if (chatType == ChatRoomType.VACATION) {
-            chatRoomDatabase = database.getReference("vacation");
+            chatRoomDatabase = database.getReference("chatRooms").child("vacation");
         }
     }
 
     private void initiateDrawer() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.chat_toolbar);
         setSupportActionBar(toolbar);
+
+        changeActionBarText(toolbar);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.chat_drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -121,6 +120,15 @@ public class ChatActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view_chat);
         navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    private void changeActionBarText(Toolbar actionbar) {
+        setSupportActionBar(actionbar);
+
+        if (chatType == ChatRoomType.GENERAL) getSupportActionBar().setTitle("General chat");
+        else if (chatType == ChatRoomType.LECTURE) getSupportActionBar().setTitle("Lectures chat");
+        else if (chatType == ChatRoomType.EXAM) getSupportActionBar().setTitle("Exams & tests chat");
+        else if (chatType == ChatRoomType.VACATION) getSupportActionBar().setTitle("Vacations chat");
     }
 
     @Override
@@ -164,12 +172,16 @@ public class ChatActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.general_chat) {
+            switchChatRoom(ChatRoomType.GENERAL);
 
         } else if (id == R.id.lecture_chat) {
+            switchChatRoom(ChatRoomType.LECTURE);
 
         } else if (id == R.id.exam_chat) {
+            switchChatRoom(ChatRoomType.EXAM);
 
         } else if (id == R.id.vacation_chat) {
+            switchChatRoom(ChatRoomType.VACATION);
 
         } else if (id == R.id.switch_calendar_activity) {
             startActivity(new Intent(ChatActivity.this, NavigationDrawerActivity.class));
@@ -178,6 +190,22 @@ public class ChatActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.chat_drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void switchChatRoom(ChatRoomType chatRoom) {
+        if (chatRoom != this.chatType) {
+//            EditText messageText = (EditText) findViewById(R.id.messageEditText);
+////            ListView messageList = (ListView) findViewById(R.id.messageListView);
+//            messageText.setText("");
+//
+//            this.chatType = chatRoom;
+//            createChatListAdapter();
+
+            Intent newChatRoomIntent = new Intent(ChatActivity.this, ChatActivity.class);
+            newChatRoomIntent.putExtra("chatRoom", chatRoom);
+
+            startActivity(newChatRoomIntent);
+        }
     }
 
     public void sendMessage(View view) {

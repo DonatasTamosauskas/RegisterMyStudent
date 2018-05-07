@@ -82,8 +82,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private void updateUI() {
-        Toast.makeText(this, "Logged in", Toast.LENGTH_SHORT).show();
-//        Intent loginIntent = new Intent(LoginActivity.this, MainActivity.class);
+//        Toast.makeText(this, "Logged in", Toast.LENGTH_SHORT).show();
         Intent loginIntent = new Intent(LoginActivity.this, NavigationDrawerActivity.class);
         LoginActivity.this.startActivity(loginIntent);
     }

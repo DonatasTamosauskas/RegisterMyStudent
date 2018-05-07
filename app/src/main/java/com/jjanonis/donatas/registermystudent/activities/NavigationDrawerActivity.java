@@ -64,7 +64,7 @@ public class NavigationDrawerActivity extends AppCompatActivity
     private void createDatabaseConnection() {
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         database = FirebaseDatabase.getInstance();
-        personalReference = database.getReference(currentUser.getUid());
+        personalReference = database.getReference("users").child(currentUser.getUid());
     }
 
     private void initiateCalendar() {
